@@ -34,9 +34,6 @@ jobs:
           go mod tidy
           git diff --exit-code
 
-      - name: Build
-        run: go build ./...
-
       - name: Run go vet
         run: go vet ./...
 
