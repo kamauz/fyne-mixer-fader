@@ -1,11 +1,13 @@
 name: Go Tests
 
+# triggers
 on:
   pull_request:
     branches:
       - main
       - dev
 
+# jobs
 jobs:
   test:
     name: Run Unit Tests
