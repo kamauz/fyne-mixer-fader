@@ -19,20 +19,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Ensure tag is on main or dev
-      - name: Ensure tag is on main or dev branch
-        run: |
-          git fetch origin main dev
-          if git merge-base --is-ancestor $GITHUB_SHA origin/main; then
-            echo "Tag is on main branch."
-          elif git merge-base --is-ancestor $GITHUB_SHA origin/dev; then
-            echo "Tag is on dev branch."
-          else
-            echo "Tag is not on main or dev branch. Exiting."
-            exit 1
-          fi
+      #   - name: Ensure tag is on main or dev branch
+      #     run: |
+      #       git fetch origin main dev
+      #       if git merge-base --is-ancestor $GITHUB_SHA origin/main; then
+      #         echo "Tag is on main branch."
+      #       elif git merge-base --is-ancestor $GITHUB_SHA origin/dev; then
+      #         echo "Tag is on dev branch."
+      #       else
+      #         echo "Tag is not on main or dev branch. Exiting."
+      #         exit 1
+      #       fi
 
-      # Detect prerelease
       - name: Detect prerelease
         id: prerelease
         run: |
@@ -43,16 +41,16 @@ jobs:
             echo "prerelease=false" >> $GITHUB_OUTPUT
           fi
 
-      # Generate changelog
       - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
         id: changelog
-        uses: mikepenz/release-changelog-builder-action@v4
         with:
-          configuration: ".github/release-changelog-config.json"
+          config: .github/cliff.toml
+          args: --latest --strip header
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
 
-      # Create or update release
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -61,7 +59,7 @@ jobs:
           body: |
             ## 📦 Release ${{ github.ref_name }}
 
-            ${{ steps.changelog.outputs.changelog }}
+            ${{ steps.changelog.outputs.content }}
           prerelease: ${{ steps.prerelease.outputs.prerelease }}
           generate_release_notes: false
         env:
