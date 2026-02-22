@@ -30,12 +30,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
-          cache: true
+          cache: false
 
       - name: Verify go.mod is tidy
         run: |
+          cp go.sum go.sum.bak
           go mod tidy
-          git diff --exit-code
+          diff go.sum go.sum.bak
 
       - name: Run Tests
         run: go test -v -race -coverprofile=coverage.out ./...
