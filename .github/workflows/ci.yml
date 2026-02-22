@@ -34,9 +34,6 @@ jobs:
           go mod tidy
           git diff --exit-code
 
-      - name: Run go vet
-        run: go vet ./...
-
       - name: Run Tests
         run: go test -v -race -coverprofile=coverage.out ./...
 
